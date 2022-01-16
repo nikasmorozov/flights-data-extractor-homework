@@ -1,6 +1,7 @@
 package lt.niko.service;
 
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -16,14 +17,14 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FlightsScraper {
+public class FlightCollertor {
     List<Flight> flights = new ArrayList<>();
 
     public void generateSearchDateRange() throws IOException {
         DateTimeFormatter dateTimeFormatterSearch = DateTimeFormatter
                 .ofPattern("E, dd MMM yyyy");
 
-        for(int i = 10; i <= 20; i++){
+        for(int i = 10; i <= 10; i++){
             LocalDateTime searchDateFrom = LocalDateTime.now().plusDays(i);
             LocalDateTime searchDateTo = searchDateFrom.plusDays(7);
 
@@ -42,20 +43,14 @@ public class FlightsScraper {
 
     }
 
-    public void getFlights(String urlToScrape, LocalDateTime searchDateFrom) {
+    public void getFlights(String baseUrl, LocalDateTime searchDateFrom) {
 
         WebClient webClient = new WebClient();
         webClient.getOptions().setCssEnabled(false);
         webClient.getOptions().setJavaScriptEnabled(false);
 
-
-
-
         try{
-            HtmlPage htmlPage = webClient.getPage(urlToScrape);
-
-            HtmlButton button = htmlPage.getFirstByXPath("//button[@type='submit' and span[text()=='Search']]");
-            button.click();
+            HtmlPage htmlPage = webClient.getPage(baseUrl);
 
             List<HtmlElement> outboundDepartureAirports = htmlPage
                     .getByXPath("//div[@class='fly5-flights fly5-depart th']" +
