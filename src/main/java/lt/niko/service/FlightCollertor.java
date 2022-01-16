@@ -1,8 +1,6 @@
 package lt.niko.service;
 
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import lt.niko.entity.Flight;
@@ -122,6 +120,9 @@ public class FlightCollertor {
 
                 for(int j = 0; j < inboundDepartureAirports.size(); j++) {
 
+                    BigDecimal tax = new TaxCollector().collectTaxes(baseUrl, i, j);
+                    System.out.println("The tax: " + tax);
+
                     //TODO switch the rest to this impl. and clean it!!
                     LocalDateTime outboundDepartureDateTime = LocalDateTime.parse(outboundDepartureDates.get(i)
                             .asNormalizedText().replace(",", "") + " " + outboundDepartureTimes.get(i)
@@ -155,6 +156,7 @@ public class FlightCollertor {
                             .totalPrice(BigDecimal.valueOf(Double.parseDouble(outboundPrices.get(i).asNormalizedText().replace(",", ""))).add(
                                     BigDecimal.valueOf(Double.parseDouble(inboundPrices.get(j).asNormalizedText().replace(",", "")))
                             ))
+                            .taxes(tax.toString())
                             .build();
 
                     flights.add(flight);
