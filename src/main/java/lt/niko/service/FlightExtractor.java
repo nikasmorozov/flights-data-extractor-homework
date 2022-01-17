@@ -1,10 +1,10 @@
 package lt.niko.service;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import lt.niko.entity.Flight;
-import lt.niko.utilities.JacksonCsvWriter;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -15,40 +15,32 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FlightCollertor {
-    List<Flight> flights = new ArrayList<>();
+public class FlightExtractor {
 
-    public void generateSearchDateRange() throws IOException {
-        DateTimeFormatter dateTimeFormatterSearch = DateTimeFormatter
-                .ofPattern("E, dd MMM yyyy");
-
-        for(int i = 10; i <= 10; i++){
-            LocalDateTime searchDateFrom = LocalDateTime.now().plusDays(i);
-            LocalDateTime searchDateTo = searchDateFrom.plusDays(7);
-
-            String generatedUrl = "https://www.fly540.com/flights/nairobi-to-mombasa?isoneway=0&depairportcode=NBO&arrvairportcode=" +
-                    "MBA&date_from="+
-                    searchDateFrom.format(dateTimeFormatterSearch) +
-                    "&date_to=" +
-                    searchDateTo.format(dateTimeFormatterSearch) +
-                    "&adult_no=1&children_no=0&infant_no=0&currency=" +
-                    "KES&searchFlight=";
-
-            System.out.println(generatedUrl);
-            getFlights(generatedUrl, searchDateFrom);
-        }
-        new JacksonCsvWriter().writeToCsvFile(flights);
-
+    private String extractIataCode(String fullAirportName) {
+        return fullAirportName.substring(fullAirportName.indexOf("(")+1, fullAirportName.indexOf(")"));
     }
 
-    public void getFlights(String baseUrl, LocalDateTime searchDateFrom) {
+    public List<Flight> extractFlight(String baseUrl, LocalDateTime searchDateFrom) throws IOException {
 
-        WebClient webClient = new WebClient();
+        List<Flight> singleDateFlights = new ArrayList<>();
+
+        WebClient webClient = new WebClient(BrowserVersion.FIREFOX);
         webClient.getOptions().setCssEnabled(false);
         webClient.getOptions().setJavaScriptEnabled(false);
 
-        try{
-            HtmlPage htmlPage = webClient.getPage(baseUrl);
+        HtmlPage htmlPage = webClient.getPage(baseUrl);
+
+
+        DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder().appendPattern("E dd MMM h:mma yyyy")
+                .parseCaseInsensitive()
+                .toFormatter();
+
+        DateTimeFormatter dateTimeFormatterOutput = DateTimeFormatter
+                .ofPattern("E MMM dd HH:mm:ss z yyyy")
+                //TODO grab time zone according to airports IATA code?
+                .withZone(ZoneId.of("GMT+3"));
+
 
             List<HtmlElement> outboundDepartureAirports = htmlPage
                     .getByXPath("//div[@class='fly5-flights fly5-depart th']" +
@@ -99,6 +91,7 @@ public class FlightCollertor {
                     .getByXPath("//div[@class='fly5-flights fly5-return th']" +
                             "//td[@data-title='Arrives']//span[@class='fldate']");
 
+            //fares
             List<HtmlElement> outboundPrices = htmlPage
                     .getByXPath("//div[@class='fly5-flights fly5-depart th']" +
                             "//span[@class='flprice']");
@@ -107,23 +100,12 @@ public class FlightCollertor {
                     .getByXPath("//div[@class='fly5-flights fly5-return th']" +
                             "//span[@class='flprice']");
 
-            DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder().appendPattern("E dd MMM h:mma yyyy")
-                    .parseCaseInsensitive()
-                    .toFormatter();
-
-            DateTimeFormatter dateTimeFormatterOutput = DateTimeFormatter
-                    .ofPattern("E MMM dd HH:mm:ss z yyyy")
-                    //TODO grab time zone according to airports IATA code?
-                    .withZone(ZoneId.of("GMT+3"));
-
             for (int i = 0; i < outboundDepartureAirports.size(); i++) {
 
                 for(int j = 0; j < inboundDepartureAirports.size(); j++) {
 
-                    BigDecimal tax = new TaxCollector().collectTaxes(baseUrl, i, j);
-                    System.out.println("The tax: " + tax);
+                    BigDecimal tax = new TaxExtractor().collectTaxes(baseUrl, i, j);
 
-                    //TODO switch the rest to this impl. and clean it!!
                     LocalDateTime outboundDepartureDateTime = LocalDateTime.parse(outboundDepartureDates.get(i)
                             .asNormalizedText().replace(",", "") + " " + outboundDepartureTimes.get(i)
                             .asNormalizedText().replace("am", "AM").replace("pm", "PM")
@@ -153,24 +135,18 @@ public class FlightCollertor {
                             .inboundArrivalAirport(extractIataCode(inboundArrivalAirports.get(j).asNormalizedText()))
                             .inboundDepartureTime(inboundDepartureDateTime.format(dateTimeFormatterOutput))
                             .inboundArrivalTime(inboundArrivalDateTime.format(dateTimeFormatterOutput))
-                            .totalPrice(BigDecimal.valueOf(Double.parseDouble(outboundPrices.get(i).asNormalizedText().replace(",", ""))).add(
-                                    BigDecimal.valueOf(Double.parseDouble(inboundPrices.get(j).asNormalizedText().replace(",", "")))
+                            .totalPrice(BigDecimal.valueOf(Double.parseDouble(outboundPrices.get(i)
+                                    .asNormalizedText().replace(",", "")))
+                                    .add(BigDecimal.valueOf(Double.parseDouble(inboundPrices.get(j)
+                                            .asNormalizedText().replace(",", "")))
                             ))
                             .taxes(tax.toString())
                             .build();
 
-                    flights.add(flight);
+                    singleDateFlights.add(flight);
                 }
             }
-
-            webClient.close();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    private String extractIataCode(String fullAirportName) {
-        return fullAirportName.substring(fullAirportName.indexOf("(")+1, fullAirportName.indexOf(")"));
+        webClient.close();
+            return singleDateFlights;
     }
 }

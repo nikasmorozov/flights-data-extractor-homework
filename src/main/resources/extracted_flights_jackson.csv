@@ -1,5 +1,0 @@
-"outbound_departure_airport",outbound_arrival_airport,outbound_departure_time,outbound_arrival_time,"inbound_departure_airport",inbound_arrival_airport,inbound_departure_time,inbound_arrival_time,total_price,taxes
-NBO,MBA,"Thu Jan 27 06:00:00 GMT+03:00 2022","Thu Jan 27 07:10:00 GMT+03:00 2022",MBA,NBO,"Thu Feb 03 07:30:00 GMT+03:00 2022","Thu Feb 03 08:40:00 GMT+03:00 2022",9080.0,1200.0
-NBO,MBA,"Thu Jan 27 06:00:00 GMT+03:00 2022","Thu Jan 27 07:10:00 GMT+03:00 2022",MBA,NBO,"Thu Feb 03 20:20:00 GMT+03:00 2022","Thu Feb 03 21:30:00 GMT+03:00 2022",9080.0,1200.0
-NBO,MBA,"Thu Jan 27 18:40:00 GMT+03:00 2022","Thu Jan 27 19:50:00 GMT+03:00 2022",MBA,NBO,"Thu Feb 03 07:30:00 GMT+03:00 2022","Thu Feb 03 08:40:00 GMT+03:00 2022",9480.0,1200.0
-NBO,MBA,"Thu Jan 27 18:40:00 GMT+03:00 2022","Thu Jan 27 19:50:00 GMT+03:00 2022",MBA,NBO,"Thu Feb 03 20:20:00 GMT+03:00 2022","Thu Feb 03 21:30:00 GMT+03:00 2022",9480.0,1200.0

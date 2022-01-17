@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.util.List;
 
 public class JacksonCsvWriter {
-    File outputCsvFile = new File("src/main/resources/extracted_flights_jackson.csv");
 
-    public void writeToCsvFile(List<Flight> flightList) throws IOException {
+    public void writeToCsvFile(List<Flight> flightList, String from, String to) throws IOException {
+
+        File outputCsvFile = new File("src/main/resources/extracted_flights_" + from + "_" + to + ".csv");
+
         CsvMapper mapper = new CsvMapper();
 
         CsvSchema schema = mapper.schemaFor(Flight.class).withHeader();
