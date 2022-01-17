@@ -14,7 +14,7 @@ public class DateRangeGenerator {
     List<Flight> allFlightsInDateRange = new ArrayList<>();
 
     int daysFromToday = 10;
-    int dateRange = 2;
+    int dateRange = 1;
     int daysToReturnFlight = 7;
 
     public void generateSearchDateRange() throws IOException {

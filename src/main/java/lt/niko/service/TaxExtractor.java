@@ -18,14 +18,25 @@ public class TaxExtractor {
 
        HtmlPage htmlPage = webClient.getPage(baseUrl);
 
-       HtmlButton selectButton1 = (HtmlButton) htmlPage.getByXPath("//div[@class='fly5-flights fly5-depart th']" +
+       HtmlButton selectButtonDepart = (HtmlButton) htmlPage.getByXPath("//div[@class='fly5-flights fly5-depart th']" +
+               "//div[contains(@class, 'fly5-result')]" +
                "//button[@class='btn btn-outline-danger select-flight']").get(i);
-
-       HtmlButton selectButton2 = (HtmlButton) htmlPage.getByXPath("//div[@class='fly5-flights fly5-return th']" +
+       HtmlButton selectButtonReturn = (HtmlButton) htmlPage.getByXPath("//div[@class='fly5-flights fly5-return th']" +
+               "//div[contains(@class, 'fly5-result')]" +
                "//button[@class='btn btn-outline-danger select-flight']").get(j);
 
-       selectButton1.click();
-       selectButton2.click();
+       //testing
+       System.out.println(htmlPage.getByXPath("//div[@class='fly5-flights fly5-depart th']" +
+               "//div[contains(@class, 'fly5-results')]").size());
+
+
+//       HtmlButton selectButtonReturn = (HtmlButton) htmlPage.getByXPath("//div[@class='fly5-flights fly5-return th']" +
+//               "//div[@class='fly5-result fly5-result-" + i + "']" +
+//               "//button[@class='btn btn-outline-danger select-flight']").get(0);
+
+
+       selectButtonDepart.click();
+       selectButtonReturn.click();
 
        HtmlButton button = htmlPage.getFirstByXPath("//button[@id='continue-btn']");
        htmlPage =  button.click();
