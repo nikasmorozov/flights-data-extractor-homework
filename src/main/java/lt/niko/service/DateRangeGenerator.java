@@ -23,7 +23,9 @@ public class DateRangeGenerator {
         DateTimeFormatter dateTimeFormatterSearch = DateTimeFormatter
                 .ofPattern("E, dd MMM yyyy");
 
-        for(int i = daysFromToday; i <= daysFromToday + dateRange - 1; i++){
+
+        //implementation for 10 and 20 days from today, but could be easily converted to date range like 10 days from 10 from today
+        for(int i = daysFromToday; i <= daysFromToday + 10; i = i + 9){
             LocalDateTime searchDateFrom = LocalDateTime.now().plusDays(i);
             LocalDateTime searchDateTo = searchDateFrom.plusDays(daysToReturnFlight);
 
