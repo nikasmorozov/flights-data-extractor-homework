@@ -41,5 +41,6 @@ public class DateRangeGenerator {
         }
 
         new JacksonCsvWriter().writeToCsvFile(allFlightsInDateRange, "NBO", "MBA");
+        System.out.println("CSV written");
     }
 }

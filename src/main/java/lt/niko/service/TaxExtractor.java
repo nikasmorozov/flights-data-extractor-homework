@@ -1,6 +1,7 @@
 package lt.niko.service;
 
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -18,25 +19,20 @@ public class TaxExtractor {
 
        HtmlPage htmlPage = webClient.getPage(baseUrl);
 
-       HtmlButton selectButtonDepart = (HtmlButton) htmlPage.getByXPath("//div[@class='fly5-flights fly5-depart th']" +
-               "//div[contains(@class, 'fly5-result')]" +
-               "//button[@class='btn btn-outline-danger select-flight']").get(i);
-       HtmlButton selectButtonReturn = (HtmlButton) htmlPage.getByXPath("//div[@class='fly5-flights fly5-return th']" +
-               "//div[contains(@class, 'fly5-result')]" +
-               "//button[@class='btn btn-outline-danger select-flight']").get(j);
+       List<HtmlElement> departResults = htmlPage
+               .getByXPath("//div[@class='fly5-flights fly5-depart th']/*/div[contains(@class, 'fly5-result-')]");
 
-       //testing
-       System.out.println(htmlPage.getByXPath("//div[@class='fly5-flights fly5-depart th']" +
-               "//div[contains(@class, 'fly5-results')]").size());
+       HtmlButton departSelectButton = (HtmlButton) departResults.get(i)
+               .getByXPath("*//button[@class='btn btn-outline-danger select-flight']").get(0);
 
+       List<HtmlElement> returnResults = htmlPage
+               .getByXPath("//div[@class='fly5-flights fly5-return th']/*/div[contains(@class, 'fly5-result-')]");
 
-//       HtmlButton selectButtonReturn = (HtmlButton) htmlPage.getByXPath("//div[@class='fly5-flights fly5-return th']" +
-//               "//div[@class='fly5-result fly5-result-" + i + "']" +
-//               "//button[@class='btn btn-outline-danger select-flight']").get(0);
+       HtmlButton returnSelectButton = (HtmlButton) returnResults.get(j)
+               .getByXPath("*//button[@class='btn btn-outline-danger select-flight']").get(0);
 
-
-       selectButtonDepart.click();
-       selectButtonReturn.click();
+       departSelectButton.click();
+       returnSelectButton.click();
 
        HtmlButton button = htmlPage.getFirstByXPath("//button[@id='continue-btn']");
        htmlPage =  button.click();
@@ -49,6 +45,7 @@ public class TaxExtractor {
            taxSum = taxSum.add(BigDecimal.valueOf(Double.parseDouble(tax.asNormalizedText()
                    .substring(tax.asNormalizedText().lastIndexOf(")") + 1))));
        }
+       webClient.close();
        return taxSum;
    }
 }

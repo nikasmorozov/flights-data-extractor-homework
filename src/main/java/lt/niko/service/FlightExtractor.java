@@ -2,7 +2,6 @@ package lt.niko.service;
 
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import lt.niko.entity.Flight;
@@ -25,7 +24,7 @@ public class FlightExtractor {
     private List<HtmlElement> getDataByClassName(HtmlPage htmlPage, String boundDirection, String direction,String spanClassName){
         return htmlPage.getByXPath("//div[@class='fly5-flights fly5-" + boundDirection + " th']" +
                 "//td[@data-title='" + direction + "']//span[@class='" + spanClassName + "']");
-    };
+    }
 
     public List<Flight> extractFlight(String baseUrl, LocalDateTime searchDateFrom) throws IOException {
 
@@ -35,6 +34,7 @@ public class FlightExtractor {
         webClient.getOptions().setCssEnabled(false);
         webClient.getOptions().setJavaScriptEnabled(false);
         webClient.getOptions().setUseInsecureSSL(true);
+        webClient.getOptions().setThrowExceptionOnScriptError(false);
 
         HtmlPage htmlPage = webClient.getPage(baseUrl);
 
@@ -44,14 +44,8 @@ public class FlightExtractor {
 
         DateTimeFormatter dateTimeFormatterOutput = DateTimeFormatter
                 .ofPattern("E MMM dd HH:mm:ss z yyyy")
-                //TODO grab time zone according to airports IATA code?
+                //was told to use search machine's time zone, but departure airport's time zone makes more sense as it show the real departure time
                 .withZone(ZoneId.of("GMT+3"));
-
-
-        //sample of method filling
-//            List<HtmlElement> outboundDepartureAirports = htmlPage
-//                    .getByXPath("//div[@class='fly5-flights fly5-depart th']" +
-//                            "//td[@data-title='Departs']//span[@class='flfrom']");
 
         //Outbound:
         List<HtmlElement> outboundDepartureAirports = getDataByClassName(
@@ -103,15 +97,6 @@ public class FlightExtractor {
                         "//span[@class='flprice']");
 
         for (int i = 0; i < outboundDepartureAirports.size(); i++) {
-
-            //testing of getting various packages fares
-            List<HtmlElement> packageFares = htmlPage.getByXPath("//div[@class='fly5-flights fly5-return th']" +
-                    "//div[contains(@class, 'fly5-result')]" +
-                    "//span[@class='pkgprice']");
-
-            for (HtmlElement fare : packageFares) {
-//                    System.out.println(fare.asNormalizedText());
-            }
 
             for(int j = 0; j < inboundDepartureAirports.size(); j++) {
 
